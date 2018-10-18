@@ -56,38 +56,40 @@ var (
 	// Long polling waiting list.
 	waitingList = list.New()
 	subscribers = list.New()
+	G_players   = make(map[string]Subscriber)
 )
 
 // This function handles all incoming chan messages.
 func chatroom() {
 	for {
 		select {
-		case sub := <-subscribe:
+		case sub := <-subscribe: //player 上线
 			if !isUserExist(subscribers, sub.Name) {
 				subscribers.PushBack(sub) // Add user to the end of list.
+				G_players[sub.Name] = sub
 				// Publish a JOIN event.
 				publish <- newEvent(models.EVENT_JOIN, sub.Name, "")
 				beego.Info("New user:", sub.Name, ";WebSocket:", sub.Conn != nil)
 			} else {
 				beego.Info("Old user:", sub.Name, ";WebSocket:", sub.Conn != nil)
 			}
-		case event := <-publish:
+		case event := <-publish: //收到client 事件
 			// Notify waiting list.
 			for ch := waitingList.Back(); ch != nil; ch = ch.Prev() {
 				ch.Value.(chan bool) <- true
 				waitingList.Remove(ch)
 			}
-
 			broadcastWebSocket(event)
 			models.NewArchive(event)
 
 			if event.Type == models.EVENT_MESSAGE {
 				beego.Info("Message from", event.User, ";Content:", event.Content)
 			}
-		case unsub := <-unsubscribe:
+		case unsub := <-unsubscribe: //player 下线
 			for sub := subscribers.Front(); sub != nil; sub = sub.Next() {
 				if sub.Value.(Subscriber).Name == unsub {
 					subscribers.Remove(sub)
+					delete(G_players, unsub)
 					// Clone connection.
 					ws := sub.Value.(Subscriber).Conn
 					if ws != nil {
