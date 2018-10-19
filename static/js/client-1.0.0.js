@@ -1,6 +1,24 @@
 //import ScatterJS from '/static/js/client-map-1.0.0.29.js'
 //import ScatterEOS from 'scatterjs-plugin-eosjs'
+var socket;
 
+function Login(user_hash) {
+    // Create a socket
+    socket = new WebSocket('ws://' + window.location.host + '/ws/join?uname=' + user_hash);
+    // Message received on the socket
+    socket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        console.log(data);
+        switch (data.Type) {
+        case 0: // JOIN
+            break;
+        case 1: // LEAVE
+            break;
+        case 2: // MESSAGE
+            break;
+        }
+    };
+}
 ScatterJS.plugins( new ScatterEOS() );
 function NpcOnClick(id){
 	//alert(id);
@@ -14,8 +32,9 @@ function NpcOnClick(id){
     
     	// Use `scatter` normally now.
     	//alert(ScatterJS.scatter.getIdentity());
-		Promise = ScatterJS.scatter.getIdentity()
-		//console.log(ScatterJS.scatter.getIdentity())
+		ScatterJS.scatter.getIdentity().then(
+			function (result) {  Login(result.publicKey);}
+		);
 	});
 }
 function AddNpc(name,id,header){

@@ -16,6 +16,7 @@ package models
 
 import (
 	"container/list"
+	"time"
 )
 
 type EventType int
@@ -31,6 +32,11 @@ type Event struct {
 	User      string
 	Timestamp int // Unix timestamp (secs)
 	Content   string
+	Data      map[string]interface{}
+}
+
+func CreateEvent(Type EventType, User string) Event {
+	return Event{Type, User, int(time.Now().Unix()), "", make(map[string]interface{})}
 }
 
 const archiveSize = 20

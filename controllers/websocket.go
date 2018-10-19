@@ -24,12 +24,12 @@ import (
 	"WebGame/models"
 )
 
-// WebSocketController handles WebSocket requests.
+// Players WebSocket
 type WebSocketController struct {
 	baseController
 }
 
-// Join method handles WebSocket requests for WebSocketController.
+// 玩家登录唤醒
 func (this *WebSocketController) Join() {
 	uname := this.GetString("uname")
 	if len(uname) == 0 {
@@ -56,18 +56,18 @@ func (this *WebSocketController) Join() {
 	}
 }
 
-func broadcastWebSocket(event models.Event) {
+/*将事件，推送给每一个玩家*/
+func BroadcastWebSocket(event models.Event) {
 	data, err := json.Marshal(event)
 	if err != nil {
 		beego.Error("Fail to marshal event:", err)
 		return
 	}
-
-	for sub := subscribers.Front(); sub != nil; sub = sub.Next() {
-		ws := sub.Value.(Subscriber).Conn
+	for _, sub := range G_players {
+		ws := sub.Conn
 		if ws != nil {
 			if ws.WriteMessage(websocket.TextMessage, data) != nil {
-				unsubscribe <- sub.Value.(Subscriber).Name
+				unsubscribe <- sub.Name
 			}
 		}
 	}
