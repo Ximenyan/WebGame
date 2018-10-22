@@ -15,10 +15,11 @@
 package controllers
 
 import (
+	"WebGame/models"
+	"WebGame/models/player"
+
 	"github.com/astaxie/beego"
 	"github.com/gorilla/websocket"
-
-	"WebGame/models"
 )
 
 type Subscription struct {
@@ -63,6 +64,7 @@ func chatroom() {
 				delete(G_players, sub.Name)
 			}
 			G_players[sub.Name] = sub
+			player.AddGPlayer(sub.Name, sub.Name)
 			publish <- newEvent(models.EVENT_JOIN, sub.Name, "")
 			beego.Info("New user:", sub.Name, ";WebSocket:", sub.Conn != nil)
 		case event := <-publish: //收到client 事件

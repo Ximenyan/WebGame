@@ -1,7 +1,8 @@
 //import ScatterJS from '/static/js/client-map-1.0.0.29.js'
 //import ScatterEOS from 'scatterjs-plugin-eosjs'
-var socket;
-
+//玩家socket
+var PlayerSocket;
+//登录
 function Login(user_hash) {
     // Create a socket
     socket = new WebSocket('ws://' + window.location.host + '/ws/join?uname=' + user_hash);
@@ -11,6 +12,7 @@ function Login(user_hash) {
         console.log(data);
         switch (data.Type) {
         case 0: // JOIN
+			AddNpc("屠夫","qwe","npc");
             break;
         case 1: // LEAVE
             break;
@@ -19,7 +21,10 @@ function Login(user_hash) {
         }
     };
 }
+//SCATTEER 钱包工具
 ScatterJS.plugins( new ScatterEOS() );
+
+//点击NPC触发
 function NpcOnClick(id){
 	//alert(id);
 	const connectionOptions = {initTimeout:10000}
@@ -37,8 +42,9 @@ function NpcOnClick(id){
 		);
 	});
 }
+//有NPC进入或者复活
 function AddNpc(name,id,header){
-	var NpcStr = '<li id="li_npc%%%id%%%"data-icon="false" class="ui-li-has-icon ui-first-child" onclick=NpcOnClick("%%%id%%%");><a href="#" class="ui-btn"><img src="/static/img/%%%header%%%.png" class="ui-li-icon">%%%name%%%</a></li>'
+	var NpcStr = '<li id="li_npc%%%id%%%"data-icon="false" class="ui-li-has-icon ui-first-child" onclick=NpcOnClick("%%%id%%%");><a href="#" class="ui-btn"><img src="/static/img/%%%header%%%.gif" class="ui-li-icon">%%%name%%%</a></li>'
 	$("#ul_npc_players").append(NpcStr.replace("%%%name%%%", name).replace("%%%header%%%",header).replace(/%%%id%%%/g,id));
 }
 $(document).ready(function(){
@@ -60,5 +66,5 @@ $(document).ready(function(){
 		drawPlayer(longi,lati);
 		drawMonster();
 	});
-	AddNpc("杀猪人","asd","us");
+	AddNpc("杀猪人","asd","mg");
 });
