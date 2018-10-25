@@ -65,6 +65,7 @@ func chatroom() {
 			}
 			G_players[sub.Name] = sub
 			player.AddGPlayer(sub.Name, sub.Name)
+			//player.Reload()
 			publish <- newEvent(models.EVENT_JOIN, sub.Name, "")
 			beego.Info("New user:", sub.Name, ";WebSocket:", sub.Conn != nil)
 		case event := <-publish: //收到client 事件
